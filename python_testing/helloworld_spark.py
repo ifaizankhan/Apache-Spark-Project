@@ -3,11 +3,11 @@ from pyspark.sql.session import SparkSession
 from pyspark.sql.functions import desc
 
 
-sc = pyspark.SparkContext('local[*]')
+sc = pyspark.SparkContext('local')
 spark = SparkSession(sc)
 
 
-csv_data = spark.read.format('csv').options(header='true').load('/home/saad/Documents/SPARK/Apache-Spark-Project/python_testing/time_series_19-covid-Confirmed_archived_0325.csv')
+csv_data = spark.read.format('csv').options(header='true').load('time_series_19-covid-Confirmed_archived_0325.csv')
 
 #dataa.printSchema()
 #csv_data.show(3,vertical=True)
@@ -28,4 +28,3 @@ df_Australia = df_Australia.groupBy("Country/Region").agg(exprs)
 
 
 df_Australia.show(3,vertical=True)
-
