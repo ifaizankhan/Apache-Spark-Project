@@ -14,6 +14,7 @@ sc = pyspark.SparkContext('local')
 spark = SparkSession(sc)
 
 sql = SQLContext(sc)
+sc.setLogLevel("ERROR")
 
 
 csv_data = spark.read.format('csv').options(header='true').load('time_series_19-covid-Confirmed_archived_0325.csv')
@@ -87,7 +88,7 @@ test_df = vdf_Australia.orderBy(desc("features")).limit(2)
 # test_df.show()
 
 from pyspark.ml.regression import LinearRegression
-lr = LinearRegression(featuresCol = 'features', labelCol='Cases', maxIter=2000, regParam=0.5, elasticNetParam=0.9)
+lr = LinearRegression(featuresCol = 'features', labelCol='Cases', maxIter=2000, regParam=0.3, elasticNetParam=0.8)
 lr_model = lr.fit(train_df)
 print("Coefficients: " + str(lr_model.coefficients))
 print("Intercept: " + str(lr_model.intercept))
