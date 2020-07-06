@@ -108,8 +108,15 @@ trainingSummary.residuals.show()
 predictions = lr_model.transform(test_df)
 predictions.select("prediction","Cases","features").show()
 
+#Converting to pandas in order to plot scatter graph
+df_plot=df_Australia.toPandas()
+df_pred=predictions.toPandas()
+
 #Visualization using graph and plot
-plt.scatter(range(51), df_Australia,  color='black')
-plt.scatter(range(2), predictions,  color='red')
+plt.scatter(df_plot["Dates"], df_plot["Cases"],  color='black')
+plt.scatter([50,51], df_pred["prediction"],  color='red')
+plt.title('Covid19 Dataset Prediction')
+plt.xlabel('Dates')
+plt.ylabel('Cases')
 plt.show()
 
