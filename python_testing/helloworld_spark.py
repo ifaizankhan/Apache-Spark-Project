@@ -34,6 +34,8 @@ df_Australia = df_Australia.filter(df_Australia['Country/Region'].isin(country))
 #Dropping columns that are not neccessary
 columns_to_drop = ['Province/State', 'Lat', 'Long']
 df_Australia = df_Australia.drop(*columns_to_drop)
+
+#Selecting and Merging data in range from 1st Feb to 23rd March 
 df_Australia = df_Australia.select(df_Australia.columns[0:1] + df_Australia.columns[11:])
 
 #Renaming and preparing the data-frame with respect to index values (0,1,2....)
@@ -42,9 +44,13 @@ for count,ele in enumerate(df_Australia.columns,-1):
     if(count==-1):
         newNames.append('Index')
         continue
-    newNames.append(str(count))    
+    newNames.append(str(count))
 oldColumns = df_Australia.schema.names
+
+#Encoding the dates into 0,1,2,3....
 df_Australia = reduce(lambda df_Australia, idx: df_Australia.withColumnRenamed(oldColumns[idx], newNames[idx]), range(len(oldColumns)), df_Australia)
+
+#Using the sum function and applying aggregate to the sum function for summation of value
 exprs = {x: "sum" for x in df_Australia.columns if x is not df_Australia.columns[0]}
 df_Australia=df_Australia.groupBy("Index").agg(exprs)
 
@@ -62,6 +68,8 @@ mySchema = StructType([ StructField("Cases", DoubleType(), True)\
                         ,StructField("Dates", StringType(), True)\
                        ])
 df_Australia = sql.createDataFrame(df_Australia,mySchema)
+
+#Type-casting the Dates column in dataframe
 df_Australia = df_Australia.withColumn("Dates", df_Australia["Dates"].cast(IntegerType()))
 
 #Calculation of feautre vector for the column with feature variables
@@ -69,12 +77,12 @@ vectorAssembler = VectorAssembler(inputCols = ['Dates'], outputCol = 'features')
 vdf_Australia = vectorAssembler.transform(df_Australia)
 vdf_Australia = vdf_Australia.select(['features', 'Cases'])
 
-#Splitting data to Train and Test data
+#Splitting data to Training data and Test data
 splits = vdf_Australia.randomSplit([0.965, 0.035])
 train_df = splits[0]
 test_df = vdf_Australia.orderBy(desc("features")).limit(2)
 
-#Applying LinearRegression method by spark to get the regression Model  
+#Applying LinearRegression method  
 lr = LinearRegression(featuresCol = 'features', labelCol='Cases', maxIter=2000, regParam=0.3, elasticNetParam=0.8)
 lr_model = lr.fit(train_df)
 print("Coefficients: " + str(lr_model.coefficients))
@@ -91,14 +99,12 @@ lr_predictions = lr_model.transform(test_df)
 lr_predictions.select("prediction","Cases","features").show()
 lr_evaluator = RegressionEvaluator(predictionCol="prediction", \
                  labelCol="Cases",metricName="r2")
-
 print("R Squared (R2) on test data = %g" % lr_evaluator.evaluate(lr_predictions))
 test_result = lr_model.evaluate(test_df)
 print("Root Mean Squared Error (RMSE) on test data = %g" % test_result.rootMeanSquaredError)
 print("numIterations: %d" % trainingSummary.totalIterations)
 print("objectiveHistory: %s" % str(trainingSummary.objectiveHistory))
 trainingSummary.residuals.show()
-
 predictions = lr_model.transform(test_df)
 predictions.select("prediction","Cases","features").show()
 
