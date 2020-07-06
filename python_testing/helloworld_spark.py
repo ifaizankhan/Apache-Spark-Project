@@ -11,6 +11,7 @@ from functools import reduce
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.sql.functions import length
 
 #Creating a pysaprk local session using context
 sc = pyspark.SparkContext('local')
@@ -100,3 +101,9 @@ trainingSummary.residuals.show()
 
 predictions = lr_model.transform(test_df)
 predictions.select("prediction","Cases","features").show()
+
+#Visualization using graph and plot
+plt.scatter(range(51), df_Australia,  color='black')
+plt.scatter(range(2), predictions,  color='red')
+plt.show()
+
