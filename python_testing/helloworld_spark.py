@@ -46,6 +46,8 @@ oldColumns = df_Australia.schema.names
 df_Australia = reduce(lambda df_Australia, idx: df_Australia.withColumnRenamed(oldColumns[idx], newNames[idx]), range(len(oldColumns)), df_Australia)
 exprs = {x: "sum" for x in df_Australia.columns if x is not df_Australia.columns[0]}
 df_Australia=df_Australia.groupBy("Index").agg(exprs)
+
+#Renaming columns (dates) as (0,1,2,3....)
 for i in df_Australia.columns[1:]:
     df_Australia=df_Australia.withColumnRenamed(i, (i[4:-1]).zfill(2))
 
