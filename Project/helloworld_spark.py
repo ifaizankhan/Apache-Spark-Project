@@ -87,10 +87,13 @@ vectorAssembler = VectorAssembler(inputCols = ['Dates'], outputCol = 'features')
 vdf_Australia = vectorAssembler.transform(df_Australia)
 vdf_Australia = vdf_Australia.select(['features', 'Cases'])
 
-#Splitting data to Training data and Test data
-splits = vdf_Australia.randomSplit([0.965, 0.035])
-train_df = splits[0]
-test_df = vdf_Australia.orderBy(desc("features")).limit(2)
+# Splitting data to Training data and Test data
+
+train_df = vdf_Australia.orderBy(("features")).limit(50) # initial 50 samples for training
+test_df = vdf_Australia.orderBy(desc("features")).limit(2) # last 2 samples for testing
+
+# train_df.show(100, False)
+# test_df.show(100, False)
 
 #Applying LinearRegression method  
 lr = LinearRegression(featuresCol = 'features', labelCol='Cases', maxIter=2000, regParam=0.3, elasticNetParam=0.8)
